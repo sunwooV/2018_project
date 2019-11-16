@@ -1,0 +1,14 @@
+1000
+10000
+5000
+50000
+bag
+book
+bottle
+doll
+etc
+glasses
+human
+pen
+pencilcase
+phone

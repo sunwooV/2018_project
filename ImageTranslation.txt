@@ -1,0 +1,145 @@
+workspace; 
+format long g;
+format compact;
+fontSize = 20;
+
+%Start with null in text
+
+
+Result=string
+
+hasIPT = license('test', 'image_toolbox');
+fullFileName = "";
+file="";
+n=1;
+
+A= exist ('braille1.jpg' ,'file') 
+
+while 1
+    if A==2
+        break;
+        
+    else %exist('breaille1.jpg', file) ==1
+        pause(n)
+        A= exist ('braille1.jpg' ,'file') 
+    end
+end
+
+baseFileName = 'braille1.jpg'; % Assign the one on the button that they clicked on.
+
+folder = pwd; % Current folder
+fullFileName = fullfile(folder, baseFileName);
+
+
+if ~exist(fullFileName, 'file')
+	fullFileNameOnSearchPath = baseFileName; % No path this time.
+	if ~exist(fullFileNameOnSearchPath, 'file')
+		errorMessage = sprintf('Error: %s does not exist in the search path folders.', fullFileName);
+		uiwait(warndlg(errorMessage));
+		return;
+	end
+end
+
+grayImage = imread(fullFileName);
+
+[rows, columns, numberOfColorBands] = size(grayImage);
+if numberOfColorBands > 1
+	grayImage = min(grayImage, [], 3); % Take green channel.
+end
+
+subplot(2, 2, 1);
+imshow(grayImage, []);
+axis on;
+title('Original Grayscale Image', 'FontSize', fontSize, 'Interpreter', 'None');
+drawnow;
+
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0 0 1 1]);
+set(gcf, 'Toolbar', 'none', 'Menu', 'none');
+set(gcf, 'Name', 'Demo by ImageAnalyst', 'NumberTitle', 'Off')
+
+subplot(2, 2, 2);
+histogram(grayImage);
+grid on;
+title('Histogram of original image', 'FontSize', fontSize, 'Interpreter', 'None');
+xlabel('Gray Level', 'FontSize', fontSize);
+ylabel('Pixel Count', 'FontSize', fontSize);
+
+grayImage = imcrop(grayImage,[100 80 680 170]);
+[rows, columns, numberOfColorBands] = size(grayImage);
+hPlot = 1; % Initialize.
+
+binaryImage = grayImage > 90;
+binaryImage = imcomplement(imfill(imcomplement(binaryImage),'holes'));
+%binaryImage = bwareaopen(binaryImage, 50);
+
+subplot(2, 2, 3);
+imshow(binaryImage, []);
+axis on;
+hold on; % So we can draw boxes.
+title('Binary Image', 'FontSize', fontSize, 'Interpreter', 'None');
+drawnow;
+
+columnDividers = round(linspace(1, columns, 6+1))
+rowDividers = round(linspace(1, rows, 1+1))
+F_result="";
+%myLookUpTable =  [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63]
+%myLookUpTable =  [1 2 'wo' 4 'ae' 'wa' 7 8 9 10 11 12 't' 'a' 'b' 'wae' 'e' 18 'u' 20 'i' 'o' 'j' 24 'p' 'yu' 'n' 'yeo' 'm' 30 'g' 32 33 34 'eo' ' ' 'k' 't' 'ch' 'ui' 'h' 'eu' 'd' 'p' 'n' 'm' 'l' 48 'ya' 'yo' 'ye' 'h' 'd' 54 's' 56 'b' 'j' 'g' 'k' 'l' 's' 63]
+myLookUpTable =  [1 2 'ㅝ' 4 'ㅐ' 'ㅘ' 7 8 9 10 11 12 'ㅌ' 'ㅏ' 'ㅂ' 'ㅚ' 'ㅔ' 18 'ㅜ' 20 'ㅣ' 'ㅗ' 'ㅈ' 24 'ㅍ' 'ㅠ' 'ㄴ' 'ㅕ' 'ㅁ' 30 'ㄱ' 32 33 34 'ㅓ' 'ㅇ' 'ㅋ' 'ㅌ' 'ㅊ' 'ㅢ' 'ㅎ' 'ㅡ' 'ㄷ' 'ㅍ' 'ㄴ' 'ㅁ' 'ㄹ' 48 'ㅑ' 'ㅛ' 'ㅖ' 'ㅎ' 'ㄷ' 54 'ㅅ' 56 'ㅂ' 'ㅈ' 'ㄱ' 'ㅋ' 'ㄹ' 'ㅅ' 63]
+
+finishNow = false;
+for c = 1 : length(columnDividers) - 1
+	col1 = columnDividers(c)
+	col2 = columnDividers(c+1)
+	for r = 1 : length(rowDividers) - 1
+		row1 = rowDividers(r)
+		row2 = rowDividers(r+1)
+		subplot(2, 2, 3);
+		xBox = [col1,col2,col2,col1,col1];
+		yBox = [row1,row1,row2,row2,row1];
+		%delete('hPlot'); % Delete prior box.
+		hPlot = plot(xBox, yBox, 'r-', 'LineWidth', 1);
+		thisImage = binaryImage(row1:row2, col1:col2);
+		subplot(2, 2, 4);
+		hold off;
+		imshow(thisImage);
+		hold on;
+		grid on;
+		axis on;
+		plot([40,40,40,80,80,80], [50,95,140,50,95,140], 'r*', 'LineWidth',0.1);
+		drawnow;
+		%pause(0.8);
+        
+       % fprintf("binary 140,40 : %d\n",thisImage(135,36))
+        %fprintf("binary 195,40 : %d\n",thisImage(190,36))
+        %fprintf("binary 250,40 : %d\n",thisImage(240,36))
+        %fprintf("binary 140,100 : %d\n",thisImage(135,102))
+        %fprintf("binary 195,100 : %d\n",thisImage(190,102))
+        %fprintf("binary 250,100 : %d\n",thisImage(240,102))
+        
+		
+        %lutIndex =  (2^5 * thisImage(135,36))+ (2^4 * thisImage(190, 36)) + (2^3 * thisImage(240, 36)) + (2^2 * thisImage(135,102)) + (2^1 * thisImage(190, 102)) + (2^0 * thisImage(240,102)) 
+        lutIndex =  (2^5 * thisImage(50,40))+ (2^4 * thisImage(95, 40)) + (2^3 * thisImage(140, 40)) + (2^2 * thisImage(50,80)) + (2^1 * thisImage(95, 80)) + (2^0 * thisImage(140,80)) 
+	
+        theLetter = myLookUpTable(lutIndex)     
+        
+        %result=theLetter;
+        
+        %F_result= strcat(F_result, theLetter)
+        
+        %promptMessage = sprintf('lutIndex = %d\n Do you want to Continue processing,\nor Quit processing?', lutIndex, theLetter);
+		%promptMessage = sprintf('lutIndex = %d\nThe letter = %c\nDo you want to Continue processing,\nor Quit processing?', lutIndex, theLetter);
+		%titleBarCaption = 'Continue?';
+		%buttonText = questdlg(promptMessage, titleBarCaption, 'Continue', 'Quit', 'Continue');
+		%if strcmpi(buttonText, 'Quit')
+		%	finishNow = true;
+		%	break;
+        %end
+	end
+	if finishNow
+		break;
+    end
+    Result=strcat(Result,theLetter);
+    fprintf(Result);
+    file_output=fopen('Result.txt','w');
+    fprintf(file_output,'%s',Result);
+end
